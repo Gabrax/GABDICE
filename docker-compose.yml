@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:18
+    container_name: gabshop-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: gabshop
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: paczek153
+    ports:
+      - "2137:5432"
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d
+
