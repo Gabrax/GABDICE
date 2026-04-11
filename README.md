@@ -20,8 +20,6 @@
 
 <p>
 <a href="https://github.com/g-truc/glm">glm</a> •
-<a href="https://github.com/libsndfile/libsndfile">libsndfile</a> •
-<a href="https://github.com/kcat/openal-soft">OpenAL-Soft</a> •
 <a href="https://github.com/nlohmann/json">nlohmann_json</a> •
 <a href="https://github.com/jrouwe/JoltPhysics">Jolt Physics</a>
 </p>
