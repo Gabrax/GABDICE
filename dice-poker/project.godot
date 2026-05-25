@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="DICE_POKER"
-run/main_scene="uid://dyy5x453uu33k"
+run/main_scene="uid://bufod14lgoy78"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
 
