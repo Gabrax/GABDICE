@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://dyy5x453uu33k"]
+
+[ext_resource type="PackedScene" uid="uid://c0x8jib83m62c" path="res://dice.glb" id="1_3sd7o"]
+
+[node name="Scene1" type="Node3D" unique_id=1219991919]
+
+[node name="Cube" parent="." unique_id=1898597672 instance=ExtResource("1_3sd7o")]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, -0.25006938, 0, 1.9666594)

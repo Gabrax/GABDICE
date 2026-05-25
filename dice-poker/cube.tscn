@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://maveoc37gtv6"]
+
+[ext_resource type="PackedScene" uid="uid://c0x8jib83m62c" path="res://dice.glb" id="1_jbd7x"]
+
+[node name="Cube" type="Node3D" unique_id=1451203951]
+
+[node name="Sketchfab_Scene" parent="." unique_id=1826355263 instance=ExtResource("1_jbd7x")]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, -0.108950496, 0.44169605, 0.4185574)
