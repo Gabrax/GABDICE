@@ -1,0 +1,60 @@
+[gd_scene format=3 uid="uid://6icur5ksybrm"]
+
+[ext_resource type="Script" uid="uid://drkddckjdvjq4" path="res://Menu/Options/button_resolution.gd" id="1_b6ytn"]
+[ext_resource type="Script" uid="uid://blam2oxk0d6l6" path="res://Menu/Options/button_return.gd" id="1_y4flo"]
+
+[node name="Options" type="Control" unique_id=1994156638]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="resolution_section" type="Control" parent="." unique_id=362734582]
+anchors_preset = 0
+offset_left = -1.0
+offset_top = 46.0
+offset_right = 39.0
+offset_bottom = 86.0
+
+[node name="resolution_label" type="Label" parent="resolution_section" unique_id=2062082347]
+layout_mode = 0
+offset_top = 23.0
+offset_right = 40.0
+offset_bottom = 46.0
+text = "Resolution"
+
+[node name="button_resolution" type="OptionButton" parent="resolution_section" unique_id=748319230]
+layout_mode = 0
+offset_left = 100.0
+offset_top = 23.0
+offset_right = 215.0
+offset_bottom = 54.0
+script = ExtResource("1_b6ytn")
+
+[node name="vsync_section" type="Control" parent="." unique_id=307563000]
+anchors_preset = 0
+offset_top = 100.0
+offset_right = 40.0
+offset_bottom = 140.0
+
+[node name="Label" type="Label" parent="vsync_section" unique_id=1338667348]
+layout_mode = 0
+offset_right = 46.0
+offset_bottom = 23.0
+text = "VSync"
+
+[node name="button_vsync" type="CheckButton" parent="vsync_section" unique_id=550874845]
+layout_mode = 0
+offset_left = 62.0
+offset_right = 106.0
+offset_bottom = 24.0
+
+[node name="button_return" type="Button" parent="." unique_id=133693461]
+layout_mode = 0
+offset_top = 141.0
+offset_right = 62.0
+offset_bottom = 172.0
+text = "Return"
+script = ExtResource("1_y4flo")
