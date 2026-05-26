@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://dutqkiucb7046" path="res://MainScene/dice_prefab.tscn" id="2_n0hen"]
 [ext_resource type="Script" uid="uid://dkt4ca8p5gxdv" path="res://MainScene/audio_stream_player_3d.gd" id="3_w4t61"]
 [ext_resource type="Script" uid="uid://b8si2qj15gg80" path="res://MainScene/ui.gd" id="4_gmwbw"]
+[ext_resource type="Script" uid="uid://vgjmrynbycsu" path="res://MainScene/mastervolume_slider.gd" id="6_mmud7"]
 [ext_resource type="Script" uid="uid://drkddckjdvjq4" path="res://Menu/Options/button_resolution.gd" id="7_wvmfo"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dbufk"]
@@ -18,6 +19,7 @@ dice_scene = ExtResource("2_n0hen")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=788299303]
 transform = Transform3D(1, 0, 0, 0, 0.8373754, 0.54662824, 0, -0.54662824, 0.8373754, 0, 1.4391654, 1.4128865)
+current = true
 near = 0.001
 far = 1062.06
 
@@ -25,6 +27,7 @@ far = 1062.06
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.89483166, 0)
 
 [node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="." unique_id=41026261]
+bus = &"Music"
 script = ExtResource("3_w4t61")
 
 [node name="CSGCombiner3D" type="CSGCombiner3D" parent="." unique_id=176374592]
@@ -75,6 +78,7 @@ scale = Vector2(4.829567, 4.665541)
 rounded = true
 
 [node name="MENU" type="CenterContainer" parent="UI" unique_id=639534146]
+visible = false
 layout_mode = 0
 offset_left = 636.0
 offset_top = 339.0
@@ -124,6 +128,9 @@ layout_mode = 2
 layout_mode = 2
 text = "SETTINGS"
 
+[node name="HSeparator" type="HSeparator" parent="UI/MENU_OPTIONS/PanelContainer/MarginContainer/VBoxContainer" unique_id=1224100002]
+layout_mode = 2
+
 [node name="HBoxContainer" type="HBoxContainer" parent="UI/MENU_OPTIONS/PanelContainer/MarginContainer/VBoxContainer" unique_id=1644587186]
 layout_mode = 2
 
@@ -145,7 +152,48 @@ text = "VSync"
 [node name="button_vsync" type="CheckButton" parent="UI/MENU_OPTIONS/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer2" unique_id=1957513367]
 layout_mode = 2
 
-[node name="HSeparator" type="HSeparator" parent="UI/MENU_OPTIONS/PanelContainer/MarginContainer/VBoxContainer" unique_id=1224100002]
+[node name="HSeparator2" type="HSeparator" parent="UI/MENU_OPTIONS/PanelContainer/MarginContainer/VBoxContainer" unique_id=2067960794]
+layout_mode = 2
+
+[node name="HBoxContainer4" type="HBoxContainer" parent="UI/MENU_OPTIONS/PanelContainer/MarginContainer/VBoxContainer" unique_id=117157639]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Label" type="Label" parent="UI/MENU_OPTIONS/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer4" unique_id=1907765256]
+layout_mode = 2
+text = "MasterVolume"
+
+[node name="HSlider" type="HSlider" parent="UI/MENU_OPTIONS/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer4" unique_id=1354843469]
+layout_mode = 2
+max_value = 1.5
+step = 0.001
+script = ExtResource("6_mmud7")
+
+[node name="HBoxContainer5" type="HBoxContainer" parent="UI/MENU_OPTIONS/PanelContainer/MarginContainer/VBoxContainer" unique_id=803639600]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/MENU_OPTIONS/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer5" unique_id=2133114307]
+layout_mode = 2
+text = "MusicVolume"
+
+[node name="HSlider" type="HSlider" parent="UI/MENU_OPTIONS/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer5" unique_id=2106557723]
+layout_mode = 2
+max_value = 1.5
+step = 0.001
+
+[node name="HBoxContainer6" type="HBoxContainer" parent="UI/MENU_OPTIONS/PanelContainer/MarginContainer/VBoxContainer" unique_id=758549676]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/MENU_OPTIONS/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer6" unique_id=507239830]
+layout_mode = 2
+text = "SFXVolume"
+
+[node name="HSlider" type="HSlider" parent="UI/MENU_OPTIONS/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer6" unique_id=782787018]
+layout_mode = 2
+max_value = 1.5
+step = 0.001
+
+[node name="HSeparator3" type="HSeparator" parent="UI/MENU_OPTIONS/PanelContainer/MarginContainer/VBoxContainer" unique_id=1176953899]
 layout_mode = 2
 
 [node name="HBoxContainer3" type="HBoxContainer" parent="UI/MENU_OPTIONS/PanelContainer/MarginContainer/VBoxContainer" unique_id=1048865325]

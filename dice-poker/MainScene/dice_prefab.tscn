@@ -27,3 +27,7 @@ mesh = ExtResource("1_pa2xl")
 
 [node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="." unique_id=2125052975]
 stream = ExtResource("3_roug4")
+unit_size = 1.0
+max_distance = 10.0
+bus = &"SFX"
+parameters/looping = false
