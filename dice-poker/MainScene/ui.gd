@@ -7,7 +7,7 @@ extends Control
 @onready var menu_options_button = get_node("/root/MainScene/UI/MENU/VBoxContainer/button_options")
 @onready var menu_quit_button = get_node("/root/MainScene/UI/MENU/VBoxContainer/button_quit")
 
-@onready var options_return_button = get_node("/root/MainScene/UI/MENU_OPTIONS/VBoxContainer/button_return")
+@onready var options_return_button = get_node("/root/MainScene/UI/MENU_OPTIONS/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer3/button_return")
 
 
 func _ready() -> void:
