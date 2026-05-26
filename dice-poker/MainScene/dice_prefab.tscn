@@ -12,6 +12,7 @@ points = PackedVector3Array(0.78680503, 1, 0.49980426, 0.74980426, 0.99980426, 0
 
 [node name="Dice1" type="RigidBody3D" unique_id=483589116]
 physics_material_override = SubResource("PhysicsMaterial_b54ew")
+continuous_cd = true
 contact_monitor = true
 max_contacts_reported = 10
 script = ExtResource("1_ihv22")

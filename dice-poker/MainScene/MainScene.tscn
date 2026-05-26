@@ -1,16 +1,20 @@
 [gd_scene format=3 uid="uid://dwhq64lok2415"]
 
-[ext_resource type="Script" uid="uid://cjiraswsgk3jr" path="res://MainScene/main_scene.gd" id="1_w4t61"]
-[ext_resource type="PackedScene" uid="uid://dutqkiucb7046" path="res://MainScene/dice_prefab.tscn" id="2_dbufk"]
+[ext_resource type="Script" uid="uid://cjiraswsgk3jr" path="res://MainScene/main_scene.gd" id="1_f4754"]
+[ext_resource type="PackedScene" uid="uid://dutqkiucb7046" path="res://MainScene/dice_prefab.tscn" id="2_n0hen"]
 [ext_resource type="Script" uid="uid://dkt4ca8p5gxdv" path="res://MainScene/audio_stream_player_3d.gd" id="3_w4t61"]
+[ext_resource type="Script" uid="uid://b8si2qj15gg80" path="res://MainScene/ui.gd" id="4_gmwbw"]
+[ext_resource type="Script" uid="uid://drkddckjdvjq4" path="res://Menu/Options/button_resolution.gd" id="7_wvmfo"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dbufk"]
 transparency = 1
 blend_mode = 1
 
+[sub_resource type="LabelSettings" id="LabelSettings_mmud7"]
+
 [node name="MainScene" type="Node3D" unique_id=1705570167]
-script = ExtResource("1_w4t61")
-dice_scene = ExtResource("2_dbufk")
+script = ExtResource("1_f4754")
+dice_scene = ExtResource("2_n0hen")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=788299303]
 transform = Transform3D(1, 0, 0, 0, 0.8373754, 0.54662824, 0, -0.54662824, 0.8373754, 0, 1.4391654, 1.4128865)
@@ -46,3 +50,85 @@ use_collision = true
 [node name="CSGBox3D7" type="CSGBox3D" parent="CSGCombiner3D" unique_id=652496190]
 transform = Transform3D(-3.9885833e-14, -2.1293993, -1.7047434e-08, 2.622684e-07, -9.3079e-08, 0.38999984, -2.0000005, 0, 5.114231e-08, 0, 0, 0)
 use_collision = true
+
+[node name="UI" type="Control" parent="." unique_id=1492061609]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("4_gmwbw")
+
+[node name="ProgressBar" type="ProgressBar" parent="UI" unique_id=1509269507]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = 396.0
+offset_top = 125.0
+offset_right = 400.0
+offset_bottom = 152.0
+grow_horizontal = 2
+grow_vertical = 0
+scale = Vector2(4.829567, 4.665541)
+rounded = true
+
+[node name="MENU" type="CenterContainer" parent="UI" unique_id=639534146]
+layout_mode = 0
+offset_left = 636.0
+offset_top = 339.0
+offset_right = 715.0
+offset_bottom = 467.0
+use_top_left = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/MENU" unique_id=566052671]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="UI/MENU/VBoxContainer" unique_id=1591161692]
+layout_mode = 2
+text = "GEJ MING"
+label_settings = SubResource("LabelSettings_mmud7")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="button_play" type="Button" parent="UI/MENU/VBoxContainer" unique_id=112864756]
+layout_mode = 2
+text = "PLAY"
+
+[node name="button_options" type="Button" parent="UI/MENU/VBoxContainer" unique_id=805198638]
+layout_mode = 2
+text = "OPTIONS"
+
+[node name="button_quit" type="Button" parent="UI/MENU/VBoxContainer" unique_id=1465018294]
+layout_mode = 2
+text = "QUIT"
+
+[node name="MENU_OPTIONS" type="CenterContainer" parent="UI" unique_id=22046155]
+layout_mode = 0
+offset_left = 594.0
+offset_top = 264.0
+offset_right = 656.0
+offset_bottom = 304.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/MENU_OPTIONS" unique_id=100644782]
+layout_mode = 2
+
+[node name="resolution_label" type="Label" parent="UI/MENU_OPTIONS/VBoxContainer" unique_id=955464037]
+layout_mode = 2
+text = "Resolution"
+
+[node name="button_resolution" type="OptionButton" parent="UI/MENU_OPTIONS/VBoxContainer" unique_id=1131359850]
+layout_mode = 2
+script = ExtResource("7_wvmfo")
+
+[node name="Label" type="Label" parent="UI/MENU_OPTIONS/VBoxContainer" unique_id=406500617]
+layout_mode = 2
+text = "VSync"
+
+[node name="button_vsync" type="CheckButton" parent="UI/MENU_OPTIONS/VBoxContainer" unique_id=1957513367]
+layout_mode = 2
+
+[node name="button_return" type="Button" parent="UI/MENU_OPTIONS/VBoxContainer" unique_id=465592010]
+layout_mode = 2
+text = "Return"
