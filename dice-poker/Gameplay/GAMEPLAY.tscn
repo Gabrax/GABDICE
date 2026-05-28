@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://dutqkiucb7046" path="res://Assets/Models/dice_prefab.tscn" id="2_v8cns"]
 [ext_resource type="PackedScene" uid="uid://b7gqmvyosq42a" path="res://Menu/MENU.tscn" id="3_r6f56"]
 [ext_resource type="PackedScene" uid="uid://de45kac771pt" path="res://Hud/HUD.tscn" id="4_vvecx"]
+[ext_resource type="PackedScene" uid="uid://wg2oa0dbb3nd" path="res://PAUSE/PAUSE.tscn" id="5_1je02"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dbufk"]
 transparency = 1
@@ -53,3 +54,5 @@ use_collision = true
 [node name="MENU" parent="." unique_id=6863002 instance=ExtResource("3_r6f56")]
 
 [node name="HUD" parent="." unique_id=1817203460 instance=ExtResource("4_vvecx")]
+
+[node name="PAUSE" parent="." unique_id=91666948 instance=ExtResource("5_1je02")]

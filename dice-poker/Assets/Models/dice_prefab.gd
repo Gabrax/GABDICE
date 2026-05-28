@@ -7,7 +7,7 @@ var cooldown := false
 func _ready():
 	body_entered.connect(_on_body_entered)
 
-func _on_body_entered(body):
+func _on_body_entered(_body):
 	if cooldown:
 		return
 

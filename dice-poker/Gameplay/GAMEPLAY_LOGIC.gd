@@ -13,8 +13,13 @@ const MAX_FORCE := 0.1
 const CHARGE_SPEED := 0.1
 
 @onready var charge_bar = $"HUD/ProgressBar"
+@onready var pause_screen = $PAUSE
+
+var is_pause := false
 
 func _ready():
+	pause_screen.hide()
+	
 	music_player.volume_db = -25
 	music_player.finished.connect(_on_finished)
 	play_current()
@@ -32,6 +37,15 @@ func _on_finished():
 	play_current()
 
 func _process(delta):
+	
+	if Input.is_action_just_pressed("ui_cancel"):
+		is_pause = !is_pause
+
+		if is_pause:
+			pause_screen.show()
+		else:
+			pause_screen.hide()
+	
 	if Input.is_action_pressed("ui_accept"):
 
 		charge += CHARGE_SPEED * delta
