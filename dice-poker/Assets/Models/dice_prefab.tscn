@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://dutqkiucb7046"]
 
-[ext_resource type="Script" uid="uid://b10ehrr2anwk7" path="res://MainScene/dice_prefab.gd" id="1_ihv22"]
-[ext_resource type="ArrayMesh" uid="uid://cqwg21ewgwar" path="res://test.obj" id="1_pa2xl"]
-[ext_resource type="AudioStream" uid="uid://bw2pkqr8g2f4q" path="res://Music/dice_collision.mp3" id="3_roug4"]
+[ext_resource type="Script" uid="uid://b10ehrr2anwk7" path="res://Assets/Models/dice_prefab.gd" id="1_ihv22"]
+[ext_resource type="ArrayMesh" uid="uid://cqwg21ewgwar" path="res://Assets/Models/dice.obj" id="1_pa2xl"]
+[ext_resource type="AudioStream" uid="uid://bw2pkqr8g2f4q" path="res://Assets/Music/dice_collision.mp3" id="3_roug4"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_b54ew"]
 bounce = 0.5

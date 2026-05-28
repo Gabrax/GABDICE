@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://dwhq64lok2415"]
+
+[ext_resource type="Script" uid="uid://cjiraswsgk3jr" path="res://Gameplay/GAMEPLAY_LOGIC.gd" id="1_h8nhr"]
+[ext_resource type="PackedScene" uid="uid://dutqkiucb7046" path="res://Assets/Models/dice_prefab.tscn" id="2_v8cns"]
+[ext_resource type="PackedScene" uid="uid://b7gqmvyosq42a" path="res://Menu/MENU.tscn" id="3_r6f56"]
+[ext_resource type="PackedScene" uid="uid://de45kac771pt" path="res://Hud/HUD.tscn" id="4_vvecx"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dbufk"]
+transparency = 1
+blend_mode = 1
+
+[node name="GAMEPLAY" type="Node3D" unique_id=1705570167 node_paths=PackedStringArray("music_player")]
+script = ExtResource("1_h8nhr")
+music_player = NodePath("MusicPlayer")
+dice_scene = ExtResource("2_v8cns")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=788299303]
+transform = Transform3D(1, 0, 0, 0, 0.8373754, 0.54662824, 0, -0.54662824, 0.8373754, 0, 1.4391654, 1.4128865)
+current = true
+near = 0.001
+far = 1062.06
+
+[node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1161601261]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.89483166, 0)
+
+[node name="MusicPlayer" type="AudioStreamPlayer3D" parent="." unique_id=41026261]
+bus = &"Music"
+
+[node name="CSGCombiner3D" type="CSGCombiner3D" parent="." unique_id=176374592]
+use_collision = true
+
+[node name="CSGBox3D4" type="CSGBox3D" parent="CSGCombiner3D" unique_id=2118434187]
+transform = Transform3D(-1.2230055e-07, 0, -0.099999964, 0, 1.6379998, 0, 2.7979105, 0, -4.3711372e-09, -1, 1, 0.37031788)
+use_collision = true
+
+[node name="CSGBox3D5" type="CSGBox3D" parent="CSGCombiner3D" unique_id=364253063]
+transform = Transform3D(-1.9999999, 0, 8.7422745e-09, 0, 1.6379998, 0, -1.7484552e-07, 0, -0.09999996, 0, 1, -1)
+use_collision = true
+
+[node name="CSGBox3D8" type="CSGBox3D" parent="CSGCombiner3D" unique_id=1379036636]
+transform = Transform3D(-1.8584162, 0, 8.7422745e-09, 0, 1.6379998, 0, -1.6246788e-07, 0, -0.09999996, 0, 1.0972371, 1)
+use_collision = true
+material = SubResource("StandardMaterial3D_dbufk")
+
+[node name="CSGBox3D6" type="CSGBox3D" parent="CSGCombiner3D" unique_id=1237462559]
+transform = Transform3D(3.433188e-07, 0, 0.09999995, 0, 1.6379998, 0, -2.618073, 0, 1.311341e-08, 1, 1, 0.27445924)
+use_collision = true
+
+[node name="CSGBox3D7" type="CSGBox3D" parent="CSGCombiner3D" unique_id=652496190]
+transform = Transform3D(-3.9885833e-14, -2.1293993, -1.7047434e-08, 2.622684e-07, -9.3079e-08, 0.38999984, -2.0000005, 0, 5.114231e-08, 0, 0, 0)
+use_collision = true
+
+[node name="MENU" parent="." unique_id=6863002 instance=ExtResource("3_r6f56")]
+
+[node name="HUD" parent="." unique_id=1817203460 instance=ExtResource("4_vvecx")]
