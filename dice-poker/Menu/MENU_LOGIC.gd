@@ -11,8 +11,14 @@ extends CanvasLayer
 
 @onready var hud = $"../HUD"
 
+@onready var pause = $"../PAUSE"
+
+var is_menu := false
+var is_game := false
+
 func _ready():
 	show_menu()
+	is_menu = true
 	
 	play_button.pressed.connect(_on_play_pressed)
 	settings_button.pressed.connect(_on_settings_pressed)
@@ -25,6 +31,7 @@ func _ready():
 func _on_play_pressed():
 	menu.hide()
 	hud.show()
+	is_game = true
 
 func _on_exit_pressed():
 	get_tree().quit()
