@@ -3,12 +3,27 @@
 [ext_resource type="Script" uid="uid://cjiraswsgk3jr" path="res://Gameplay/GAMEPLAY_LOGIC.gd" id="1_h8nhr"]
 [ext_resource type="PackedScene" uid="uid://dutqkiucb7046" path="res://Assets/Models/dice_prefab.tscn" id="2_v8cns"]
 [ext_resource type="PackedScene" uid="uid://bufod14lgoy78" path="res://Menu/MENU.tscn" id="3_r6f56"]
-[ext_resource type="PackedScene" uid="uid://de45kac771pt" path="res://Hud/HUD.tscn" id="4_vvecx"]
-[ext_resource type="PackedScene" uid="uid://wg2oa0dbb3nd" path="res://PAUSE/PAUSE.tscn" id="5_1je02"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_1je02"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_1je02"]
+points = PackedVector3Array(0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_odx2h"]
+points = PackedVector3Array(0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dbufk"]
 transparency = 1
 blend_mode = 1
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_w63w1"]
+points = PackedVector3Array(0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_dj5s3"]
+points = PackedVector3Array(0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_sikkc"]
+points = PackedVector3Array(0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5)
 
 [node name="GAMEPLAY" type="Node3D" unique_id=1705570167 node_paths=PackedStringArray("music_player")]
 script = ExtResource("1_h8nhr")
@@ -27,34 +42,52 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.89483166, 0)
 [node name="MusicPlayer" type="AudioStreamPlayer3D" parent="." unique_id=41026261]
 bus = &"Music"
 
-[node name="CSGCombiner3D" type="CSGCombiner3D" parent="." unique_id=176374592]
-use_collision = true
-
-[node name="CSGBox3D4" type="CSGBox3D" parent="CSGCombiner3D" unique_id=2118434187]
-transform = Transform3D(-1.2230055e-07, 0, -0.099999964, 0, 1.6379998, 0, 2.7979105, 0, -4.3711372e-09, -1, 1, 0.37031788)
-use_collision = true
-
-[node name="CSGBox3D5" type="CSGBox3D" parent="CSGCombiner3D" unique_id=364253063]
-transform = Transform3D(-1.9999999, 0, 8.7422745e-09, 0, 1.6379998, 0, -1.7484552e-07, 0, -0.09999996, 0, 1, -1)
-use_collision = true
-
-[node name="CSGBox3D8" type="CSGBox3D" parent="CSGCombiner3D" unique_id=1379036636]
-transform = Transform3D(-1.8584162, 0, 8.7422745e-09, 0, 1.6379998, 0, -1.6246788e-07, 0, -0.09999996, 0, 1.0972371, 1)
-use_collision = true
-material = SubResource("StandardMaterial3D_dbufk")
-
-[node name="CSGBox3D6" type="CSGBox3D" parent="CSGCombiner3D" unique_id=1237462559]
-transform = Transform3D(3.433188e-07, 0, 0.09999995, 0, 1.6379998, 0, -2.618073, 0, 1.311341e-08, 1, 1, 0.27445924)
-use_collision = true
-
-[node name="CSGBox3D7" type="CSGBox3D" parent="CSGCombiner3D" unique_id=652496190]
-transform = Transform3D(-3.9885833e-14, -2.1293993, -1.7047434e-08, 2.622684e-07, -9.3079e-08, 0.38999984, -2.0000005, 0, 5.114231e-08, 0, 0, 0)
-use_collision = true
-
 [node name="MENU" parent="." unique_id=6863002 instance=ExtResource("3_r6f56")]
 
-[node name="HUD" parent="." unique_id=1817203460 instance=ExtResource("4_vvecx")]
-process_mode = 2
+[node name="GameMap" type="Node3D" parent="." unique_id=2124556482]
 
-[node name="PAUSE" parent="." unique_id=91666948 instance=ExtResource("5_1je02")]
-process_mode = 2
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GameMap" unique_id=993137784]
+transform = Transform3D(-1.2195477e-07, 0, -0.1, 0, 1.63, 0, 2.79, 0, -4.371139e-09, -1, 1, 0.37)
+mesh = SubResource("BoxMesh_1je02")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="GameMap/MeshInstance3D" unique_id=110779732]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GameMap/MeshInstance3D/StaticBody3D" unique_id=1147394968]
+shape = SubResource("ConvexPolygonShape3D_1je02")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="GameMap" unique_id=501740570]
+transform = Transform3D(-2, 0, -8.742278e-09, 0, 1.63, 0, 1.7484555e-07, 0, -0.1, 0, 1, -1)
+mesh = SubResource("BoxMesh_1je02")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="GameMap/MeshInstance3D2" unique_id=1894650168]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GameMap/MeshInstance3D2/StaticBody3D" unique_id=79451757]
+shape = SubResource("ConvexPolygonShape3D_odx2h")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="GameMap" unique_id=948161404]
+transform = Transform3D(-1.85, 0, -8.742278e-09, 0, 1.63, 0, 1.6173213e-07, 0, -0.1, 0, 1.097, 1.0034603)
+mesh = SubResource("BoxMesh_1je02")
+surface_material_override/0 = SubResource("StandardMaterial3D_dbufk")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="GameMap/MeshInstance3D3" unique_id=1332673023]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GameMap/MeshInstance3D3/StaticBody3D" unique_id=2115240481]
+shape = SubResource("ConvexPolygonShape3D_w63w1")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="GameMap" unique_id=833480908]
+transform = Transform3D(-1.1408672e-07, 0, 0.1, 0, 1.63, 0, -2.61, 0, -4.371139e-09, 1, 1, 0.274)
+mesh = SubResource("BoxMesh_1je02")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="GameMap/MeshInstance3D4" unique_id=1095767487]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GameMap/MeshInstance3D4/StaticBody3D" unique_id=910493446]
+shape = SubResource("ConvexPolygonShape3D_dj5s3")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="GameMap" unique_id=1782786400]
+transform = Transform3D(-8.742278e-08, -2.12, -1.704744e-08, 0, -9.266814e-08, 0.39, -2, 9.266814e-08, 7.451673e-16, 0, 0, 0)
+mesh = SubResource("BoxMesh_1je02")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="GameMap/MeshInstance3D5" unique_id=753840928]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GameMap/MeshInstance3D5/StaticBody3D" unique_id=377857688]
+shape = SubResource("ConvexPolygonShape3D_sikkc")
