@@ -1,51 +1,54 @@
 extends Node3D
 
 @export var music_player: AudioStreamPlayer3D
-
-var tracks = [
+var tracks := [
 	preload("res://Assets/Music/tavern1.mp3"),
 	preload("res://Assets/Music/tavern2.mp3")
 ]
-
 var current_track := 0
 
 @export var dice_scene: PackedScene
-
 var charge := 0.0
-
 const MAX_FORCE := 0.1
 const CHARGE_SPEED := 0.1
 
-@onready var hud = $MENU/HUD
-@onready var charge_bar = $MENU/HUD/ProgressBar
+const PORT := 7777
+const LOCAL_IP := "127.0.0.1"
+var connect_timer := 0.0
 
-@onready var menu_canvas = $MENU
-@onready var menu = $MENU/MENU
-@onready var settings = $MENU/SETTINGS
+@onready var hud        := $UI/HUD
+@onready var charge_bar := $UI/HUD/ProgressBar
 
-@onready var pause_screen = $MENU/PAUSE
+@onready var menu_canvas     := $UI
+@onready var menu            := $UI/MENU
+@onready var join_button     := $UI/MENU/join_button
+@onready var host_button     := $UI/MENU/host_button
+@onready var settings_button := $UI/MENU/settings_button
+@onready var exit_button     := $UI/MENU/exit_button
 
-@onready var join_button = $MENU/MENU/join_button
-@onready var host_button = $MENU/MENU/host_button
-@onready var settings_button = $MENU/MENU/settings_button
-@onready var exit_button = $MENU/MENU/exit_button
+@onready var settings      := $UI/SETTINGS
+@onready var return_button := $UI/SETTINGS/return_button
 
-@onready var return_button = $MENU/SETTINGS/return_button
+@onready var pause_screen          := $UI/PAUSE
+@onready var resume_button         := $UI/PAUSE/resume_button
+@onready var pause_settings_button := $UI/PAUSE/settings_button
+@onready var disconnect_button     := $UI/PAUSE/exit_button
 
-@onready var resume_button = $MENU/PAUSE/resume_button
-@onready var disconnect_button = $MENU/PAUSE/exit_button
-@onready var pause_settings_button = $MENU/PAUSE/settings_button
+@onready var join_screen   := $UI/JOIN
+@onready var join_input    := $UI/JOIN/LineEdit
+@onready var join_connect  := $UI/JOIN/connect_button
+@onready var join_return   := $UI/JOIN/return_button
+@onready var join_status   := $UI/JOIN/Label
 
-var is_game := false
+var is_game  := false
 var is_pause := false
 var settings_from_pause := false
 
 func _ready():
 	hud.hide()
-
+	join_screen.hide()
 	settings.hide()
 	pause_screen.hide()
-
 	menu.show()
 
 	# Main menu buttons
@@ -53,9 +56,17 @@ func _ready():
 	host_button.pressed.connect(_on_host_pressed)
 	settings_button.pressed.connect(_on_settings_pressed)
 	exit_button.pressed.connect(_on_exit_pressed)
+	
+	#Join
+	join_connect.pressed.connect(_on_connect_pressed)
+	join_return.pressed.connect(_join_on_return_pressed)
+	
+	multiplayer.connected_to_server.connect(_on_connected_to_server)
+	multiplayer.connection_failed.connect(_on_connection_failed)
+	multiplayer.server_disconnected.connect(_on_server_disconnected)
 
 	# Settings buttons
-	return_button.pressed.connect(_on_return_pressed)
+	return_button.pressed.connect(_settings_on_return_pressed)
 
 	# Pause buttons
 	resume_button.pressed.connect(_on_resume_pressed)
@@ -64,73 +75,8 @@ func _ready():
 
 	# Music
 	music_player.volume_db = -25
-
 	music_player.finished.connect(_on_finished)
-
 	play_current()
-
-const PORT = 7777
-
-func _on_host_pressed():
-	var peer = ENetMultiplayerPeer.new()
-
-	var error = peer.create_server(PORT)
-
-	if error != OK:
-		print("Couldn't start server")
-		return
-
-	multiplayer.multiplayer_peer = peer
-	multiplayer.peer_connected.connect(_on_peer_connected)
-
-	var upnp = UPNP.new()
-
-	var result = upnp.discover()
-	print("UPnP Discover result:", result)
-
-	if result == UPNP.UPNP_RESULT_SUCCESS:
-		var gateway = upnp.get_gateway()
-		print("UPnP Gateway:", gateway)
-
-		if gateway and gateway.is_valid_gateway():
-			upnp.add_port_mapping(PORT, PORT, ProjectSettings.get_setting("application/config/name"), "UDP")
-
-			var public_ip = upnp.query_external_address()
-
-			print("UPnP success!")
-			print("Public IP:", public_ip)
-			print("Port:", PORT)
-			
-			#var public_ip = upnp.query_external_address()
-			#$IPAddressLabel.text = public_ip
-			
-		else:
-			print("Invalid gateway")
-	else:
-		print("UPnP not available")
-
-	print("Server started")
-
-func _on_peer_connected(id):
-	print("Client connected:", id)
-
-func _on_join_pressed():
-	menu.hide()
-	settings.hide()
-	
-	var peer = ENetMultiplayerPeer.new()
-
-	var error = peer.create_client("PUBLIC_IP_HOSTA", PORT)
-
-	if error != OK:
-		print("Couldn't connect")
-		return
-
-	multiplayer.multiplayer_peer = peer
-
-	is_game = true
-
-	print("Connecting...")
 
 func _on_game_ready():
 	hud.show()
@@ -152,10 +98,17 @@ func _on_finished():
 	play_current()
 
 # =========================
-# PROCESS
+# GAME
 # =========================
 
 func _process(delta):
+	if join_status.text.begins_with("Connecting"):
+		connect_timer += delta
+
+		if connect_timer > 10.0:
+			join_status.text = "Connection timed out"
+			connect_timer = 0.0
+	
 	# Pause toggle
 	if is_game and Input.is_action_just_pressed("ui_cancel"):
 
@@ -171,28 +124,93 @@ func _process(delta):
 
 	# Dice charging
 	if is_game and not is_pause:
-		if Input.is_action_pressed("ui_accept"):
-			charge += CHARGE_SPEED * delta
-
-			charge = clamp(charge, 0.0,MAX_FORCE)
-
-			charge_bar.value = (charge / MAX_FORCE) * 100.0
-
-		if Input.is_action_just_released("ui_accept"):
-			throw_dice(charge)
-
-			charge = 0.0
-
-			charge_bar.value = 0
+		charge_dice(delta)
 
 # =========================
 # MAIN MENU
 # =========================
 
-func _on_play_pressed():
+func _on_host_pressed():
+	var peer = ENetMultiplayerPeer.new()
+	var error = peer.create_server(PORT)
+	if error != OK:
+		print("Couldn't start server")
+		return
+
+	multiplayer.multiplayer_peer = peer
+	multiplayer.peer_connected.connect(_on_peer_connected)
+	print("Server started on localhost:", PORT)
+	is_game = true
+
+func _on_peer_connected(id):
+	print("Client connected:", id)
+
+func _on_join_pressed():
 	menu.hide()
 	settings.hide()
+	join_screen.show()
+
+	join_status.text = "Enter server IP"
+
+func error_string(err: int) -> String:
+	match err:
+		OK:
+			return "OK"
+		ERR_CANT_CREATE:
+			return "ERR_CANT_CREATE"
+		ERR_CANT_CONNECT:
+			return "ERR_CANT_CONNECT"
+		ERR_ALREADY_IN_USE:
+			return "ERR_ALREADY_IN_USE"
+		ERR_UNAVAILABLE:
+			return "ERR_UNAVAILABLE"
+		ERR_INVALID_PARAMETER:
+			return "ERR_INVALID_PARAMETER"
+		ERR_TIMEOUT:
+			return "ERR_TIMEOUT"
+		_:
+			return "Unknown Error (%d)" % err
+
+func _on_connect_pressed():
+	var ip = join_input.text.strip_edges()
+
+	if ip.is_empty():
+		ip = LOCAL_IP
+
+	join_status.text = "Connecting to %s:%d..." % [ip, PORT]
+
+	var peer = ENetMultiplayerPeer.new()
+	var error = peer.create_client(ip, PORT)
+
+	if error != OK:
+		join_status.text = "ENet Error: %s" % error_string(error)
+		return
+
+	multiplayer.multiplayer_peer = peer
+	
+	
+func _on_connected_to_server():
+	join_status.text = "Connected!"
+	is_game = true
+
+	join_screen.hide()
 	hud.show()
+	
+func _on_connection_failed():
+	join_status.text = "Connection failed."
+	
+func _on_server_disconnected():
+	join_status.text = "Disconnected from server."
+
+	is_game = false
+
+	if multiplayer.multiplayer_peer:
+		multiplayer.multiplayer_peer.close()
+
+	menu.show()
+	hud.hide()
+
+func _on_connect_success():
 	is_game = true
 
 func _on_exit_pressed():
@@ -201,6 +219,10 @@ func _on_exit_pressed():
 func _on_settings_pressed():
 	settings_from_pause = false
 	show_settings()
+
+func _join_on_return_pressed():
+	join_screen.hide()
+	menu.show()
 
 # =========================
 # PAUSE
@@ -233,7 +255,12 @@ func hide_pause():
 # SETTINGS
 # =========================
 
-func _on_return_pressed():
+func show_settings():
+	menu.hide()
+	pause_screen.hide()
+	settings.show()
+
+func _settings_on_return_pressed():
 	settings.hide()
 
 	if settings_from_pause:
@@ -241,24 +268,25 @@ func _on_return_pressed():
 	else:
 		menu.show()
 
-func show_settings():
-	menu.hide()
-	pause_screen.hide()
-	settings.show()
-
 # =========================
 # DICE
 # =========================
 
+func charge_dice(delta):
+	if Input.is_action_pressed("ui_accept"):
+		charge += CHARGE_SPEED * delta
+		charge = clamp(charge, 0.0,MAX_FORCE)
+		charge_bar.value = (charge / MAX_FORCE) * 100.0
+
+	if Input.is_action_just_released("ui_accept"):
+		throw_dice(charge)
+		charge = 0.0
+		charge_bar.value = 0	
+
 func throw_dice(force):
 	var dice = dice_scene.instantiate()
-
 	add_child(dice)
-
 	dice.global_position = Vector3(0,10,0)
-
 	var dir = Vector3(randf_range(-0.2, 0.2),-1,randf_range(-0.2, 0.2)).normalized()
-
 	dice.apply_impulse(dir * force)
-
 	dice.apply_torque_impulse(Vector3(randf_range(-10, 10),randf_range(-10, 10),randf_range(-10, 10)))

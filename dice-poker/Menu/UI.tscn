@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bufod14lgoy78"]
 
-[node name="MENU" type="CanvasLayer" unique_id=6863002]
+[node name="UI" type="CanvasLayer" unique_id=6863002]
 
 [node name="MENU" type="Control" parent="." unique_id=227176513]
 layout_mode = 3
@@ -150,6 +150,33 @@ offset_right = 68.5
 offset_bottom = 69.0
 scale = Vector2(2.3310392, 1)
 
+[node name="connect_button" type="Button" parent="JOIN" unique_id=268022695]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 3.0625
+anchor_top = 3.039772
+anchor_right = 3.0625
+anchor_bottom = 3.039772
+offset_left = -23.5
+offset_top = -41.59088
+offset_right = 23.5
+offset_bottom = -10.590883
+grow_horizontal = 2
+grow_vertical = 2
+text = "JOIN"
+metadata/_edit_use_anchors_ = true
+
+[node name="return_button" type="Button" parent="JOIN" unique_id=1305782524]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 2.175
+anchor_right = 1.575
+anchor_bottom = 2.75
+offset_right = 8.0
+offset_bottom = 8.0
+text = "RETURN"
+metadata/_edit_use_anchors_ = true
+
 [node name="HUD" type="Control" parent="." unique_id=1756537691]
 layout_mode = 3
 anchors_preset = 0
@@ -237,3 +264,50 @@ offset_bottom = 82.59087
 grow_horizontal = 2
 grow_vertical = 2
 text = "DISCONNECT"
+
+[node name="HOST" type="Control" parent="." unique_id=1446093191]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Label" type="Label" parent="HOST" unique_id=236717395]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="LOBBY" type="Control" parent="." unique_id=1390693338]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Label" type="Label" parent="LOBBY" unique_id=1508865694]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="Label2" type="Label" parent="LOBBY" unique_id=305592959]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="Label3" type="Label" parent="LOBBY" unique_id=1026180147]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="Label4" type="Label" parent="LOBBY" unique_id=858104841]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="Label5" type="Label" parent="LOBBY" unique_id=2053542232]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="Label6" type="Label" parent="LOBBY" unique_id=1794241787]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0

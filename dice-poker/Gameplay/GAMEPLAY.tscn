@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cjiraswsgk3jr" path="res://Gameplay/GAMEPLAY_LOGIC.gd" id="1_h8nhr"]
 [ext_resource type="PackedScene" uid="uid://dutqkiucb7046" path="res://Assets/Models/dice_prefab.tscn" id="2_v8cns"]
-[ext_resource type="PackedScene" uid="uid://bufod14lgoy78" path="res://Menu/MENU.tscn" id="3_r6f56"]
+[ext_resource type="PackedScene" uid="uid://bufod14lgoy78" path="res://Menu/UI.tscn" id="3_r6f56"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_1je02"]
 
@@ -42,7 +42,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.89483166, 0)
 [node name="MusicPlayer" type="AudioStreamPlayer3D" parent="." unique_id=41026261]
 bus = &"Music"
 
-[node name="MENU" parent="." unique_id=6863002 instance=ExtResource("3_r6f56")]
+[node name="UI" parent="." unique_id=6863002 instance=ExtResource("3_r6f56")]
 
 [node name="GameMap" type="Node3D" parent="." unique_id=2124556482]
 
