@@ -16,6 +16,8 @@ const PORT := 7777
 const LOCAL_IP := "127.0.0.1"
 var connect_timer := 0.0
 
+@onready var dice_container := $GameMap/DiceContainer
+
 @onready var menu_canvas     := $UI
 @onready var menu            := $UI/MENU
 @onready var join_button     := $UI/MENU/join_button
@@ -31,10 +33,10 @@ var connect_timer := 0.0
 @onready var pause_settings_button := $UI/PAUSE/settings_button
 @onready var disconnect_button     := $UI/PAUSE/exit_button
 
-@onready var host_screen     := $UI/HOST
-@onready var host_input_nick := $UI/HOST/LineEdit
+@onready var host_screen        := $UI/HOST
+@onready var host_input_nick    := $UI/HOST/LineEdit
 @onready var host_return_button := $UI/HOST/exit_button
-@onready var host_init_button := $UI/HOST/init_button
+@onready var host_init_button   := $UI/HOST/init_button
 
 @onready var join_screen     := $UI/JOIN
 @onready var join_input      := $UI/JOIN/LineEdit
@@ -51,21 +53,22 @@ var connect_timer := 0.0
 @onready var game_lobby_user5        := $UI/LOBBY/Label5
 @onready var ready_button            := $UI/LOBBY/ready_button
 @onready var lobby_disconnect_button := $UI/LOBBY/disconnect_button
+@onready var countdown               := $UI/LOBBY/countdown
 
-@onready var hud        := $UI/HUD
-@onready var charge_bar := $UI/HUD/ProgressBar
-@onready var turn_label1 = $UI/HUD/Player1
-@onready var turn_label2 = $UI/HUD/Player2
-@onready var turn_label3 = $UI/HUD/Player3
-@onready var turn_label4 = $UI/HUD/Player4
-@onready var turn_label5 = $UI/HUD/Player5
-@onready var pass_turn_button = $UI/HUD/PassTurn
+@onready var hud              := $UI/HUD
+@onready var charge_bar       := $UI/HUD/ProgressBar
+@onready var turn_label1      := $UI/HUD/Player1
+@onready var turn_label2      := $UI/HUD/Player2
+@onready var turn_label3      := $UI/HUD/Player3
+@onready var turn_label4      := $UI/HUD/Player4
+@onready var turn_label5      := $UI/HUD/Player5
+@onready var pass_turn_button := $UI/HUD/PassTurn
 
 var players := {}
 var player_name = ""
 var ready_players := {}
 
-var is_game  := false
+var is_game  := false 
 var is_pause := false
 var settings_from_pause := false
 
@@ -77,7 +80,7 @@ var current_turn := 0
 var dice_thrown := {}
 
 var countdown_active := false
-var countdown := 5
+var countdown_time := 5
 
 func _ready():
 	hud.hide()
@@ -86,41 +89,41 @@ func _ready():
 	pause_screen.hide()
 	game_lobby.hide()
 	host_screen.hide()
+	pass_turn_button.hide()
 	menu.show()
 
-	pass_turn_button.hide()
-	
-	pass_turn_button.pressed.connect(_on_pass_turn_pressed)
+	multiplayer.connected_to_server.connect(_on_connected_to_server)
+	multiplayer.connection_failed.connect(_on_connection_failed)
+	multiplayer.server_disconnected.connect(_on_server_disconnected)
 
-	# Main menu buttons
+	# Main menu
 	join_button.pressed.connect(_on_join_pressed)
 	host_button.pressed.connect(_on_host_pressed)
 	settings_button.pressed.connect(_on_settings_pressed)
 	exit_button.pressed.connect(_on_exit_pressed)
 	
-	#Host
-	host_init_button.pressed.connect(_on_host_init_server)
-	host_return_button.pressed.connect(_on_host_return)
-	
-	#Join
-	join_connect.pressed.connect(_on_connect_pressed)
-	join_return.pressed.connect(_join_on_return_pressed)
-	
-	multiplayer.connected_to_server.connect(_on_connected_to_server)
-	multiplayer.connection_failed.connect(_on_connection_failed)
-	multiplayer.server_disconnected.connect(_on_server_disconnected)
-
-	#lobby
-	ready_button.pressed.connect(_on_ready_pressed)
-	lobby_disconnect_button.pressed.connect(_on_disconnect_pressed)
-
-	# Settings buttons
+	# Settings
 	return_button.pressed.connect(_settings_on_return_pressed)
 
-	# Pause buttons
+	# Pause
 	resume_button.pressed.connect(_on_resume_pressed)
 	disconnect_button.pressed.connect(_on_disconnect_pressed)
 	pause_settings_button.pressed.connect(_on_pause_settings_pressed)
+	
+	# Host
+	host_init_button.pressed.connect(_on_host_init_server)
+	host_return_button.pressed.connect(_on_host_return)
+	
+	# Join
+	join_connect.pressed.connect(_on_connect_pressed)
+	join_return.pressed.connect(_join_on_return_pressed)
+
+	# lobby
+	ready_button.pressed.connect(_on_ready_pressed)
+	lobby_disconnect_button.pressed.connect(_on_disconnect_pressed)
+
+	# Game
+	pass_turn_button.pressed.connect(_on_pass_turn_pressed)
 
 	# Music
 	music_player.volume_db = -25
@@ -156,11 +159,8 @@ func next_turn():
 
 @rpc("call_local","reliable")
 func sync_turn(turn):
-
 	current_turn = turn
-
 	update_turn_ui()
-
 	pass_turn_button.hide()
 
 func _on_host_init_server():
@@ -175,16 +175,11 @@ func _on_host_init_server():
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 	
 	player_name = host_input_nick.text
-
 	if player_name.is_empty():
 		player_name = "Host"
 
 	var my_id = multiplayer.get_unique_id()
-
-	players[my_id] = {
-		"name": player_name,
-		"ready": false
-	}
+	players[my_id] = {"name": player_name,"ready": false}
 	
 	host_screen.hide()
 	show_lobby()
@@ -247,7 +242,6 @@ func _process(delta):
 			hide_pause()
 
 	var my_id = multiplayer.get_unique_id()
-
 	if dice_thrown.has(my_id) and dice_thrown[my_id] >= 6:
 		pass_turn_button.show()
 
@@ -275,37 +269,27 @@ func _on_connected_to_server():
 
 	show_lobby()
 
-	rpc_id(
-		1,
-		"register_player",
-		multiplayer.get_unique_id(),
-		player_name
-	)
+	rpc_id(1,"register_player",multiplayer.get_unique_id(),player_name)
 
 	is_game = true
 
 @rpc("any_peer","reliable")
 func register_player(id, name):
 
-	players[id] = {
-		"name": name,
-		"ready": false
-	}
+	players[id] = {"name": name,"ready": false}
 
 	update_lobby()
 
 	rpc("sync_players", players)
 	
-@rpc("authority", "reliable")
+@rpc("call_local", "reliable")
 func sync_players(new_players):
 	players = new_players
 	update_lobby()
 	
 func _on_peer_disconnected(id):
 	players.erase(id)
-
 	update_lobby()
-
 	rpc("sync_players", players)
 	
 func show_lobby():
@@ -314,11 +298,11 @@ func show_lobby():
 	hud.hide()
 
 	game_lobby.show()
+	countdown.text = "Waiting for players readyness..."
 
 	update_lobby()
 	
 func update_lobby():
-
 	var labels = [
 		game_lobby_user1,
 		game_lobby_user2,
@@ -333,14 +317,11 @@ func update_lobby():
 	var index = 0
 
 	for id in players.keys():
-
 		var p = players[id]
-
 		var txt = p["name"]
-
+		
 		if id == 1:
 			txt += " (HOST)"
-
 		if p["ready"]:
 			txt += " [READY]"
 		else:
@@ -350,8 +331,6 @@ func update_lobby():
 			labels[index].text = txt
 			
 		index += 1
-
-	#player_count.text = "%d/5 Players" % players.size()
 		
 func _on_ready_pressed():
 	var my_id = multiplayer.get_unique_id()
@@ -374,43 +353,46 @@ func toggle_ready(id):
 	
 func check_all_ready():
 
-	if !multiplayer.is_server():
+	if !multiplayer.is_server() or countdown_active or game_started:
 		return
 
 	if players.size() < 2:
+		countdown.text = "At least 2 Players have to be ready"
 		return
 
 	for p in players.values():
 		if !p["ready"]:
 			countdown_active = false
+			rpc("show_waiting")
 			return
 
 	if !countdown_active:
 		start_countdown()
 
+@rpc("call_local","reliable")
+func show_waiting():
+	countdown.text = "Waiting for players readyness..."
+
 func start_countdown():
 	countdown_active = true
 
-	countdown = 5
+	countdown_time = 5
 
-	rpc("show_countdown", countdown)
+	rpc("show_countdown", countdown_time)
 
-	while countdown > 0:
-
+	while countdown_time > 0:
 		await get_tree().create_timer(1.0).timeout
-
-		countdown -= 1
-
-		rpc("show_countdown", countdown)
+		countdown_time -= 1
+		rpc("show_countdown", countdown_time)
 
 	begin_game()
 
 @rpc("call_local","reliable")
 func show_countdown(value):
 	if value > 0:
-		join_status.text = "Game starts in %d" % value
+		countdown.text = "Game starts in %d" % value
 	else:
-		join_status.text = "START!"
+		countdown.text = "START!"
 
 func begin_game():
 	countdown_active = false
@@ -434,20 +416,16 @@ func begin_game():
 
 @rpc("call_local","reliable")
 func start_game_rpc(order):
-
 	player_order = order
-
 	game_started = true
-
+	countdown.text = ""
 	game_lobby.hide()
-
 	hud.show()
 
 	update_turn_ui()
 	pass_turn_button.hide()
 
 func update_turn_ui():
-
 	var labels = [
 		turn_label1,
 		turn_label2,
@@ -460,9 +438,7 @@ func update_turn_ui():
 		l.text = ""
 
 	for i in range(player_order.size()):
-
 		var id = player_order[i]
-
 		var txt = players[id]["name"]
 
 		if i == current_turn:
@@ -472,7 +448,6 @@ func update_turn_ui():
 			labels[i].text = txt
 
 func is_my_turn():
-
 	if !game_started:
 		return false
 
@@ -574,6 +549,9 @@ func _on_disconnect_pressed():
 		rpc("sync_players", players)
 
 	players.clear()
+	player_order.clear()
+	dice_thrown.clear()
+	game_started = false
 
 	hide_pause()
 
@@ -638,11 +616,71 @@ func throw_dice(force):
 	if dice_thrown[my_id] >= 6:
 		return
 
-	dice_thrown[my_id] += 1
+	if multiplayer.is_server():
+		dice_thrown[my_id] += 1
+		spawn_dice(force)
+	else:
+		rpc_id(1, "request_throw", force)
+		
+@rpc("any_peer", "reliable")
+func request_throw(force):
+
+	if !multiplayer.is_server():
+		return
+
+	var sender = multiplayer.get_remote_sender_id()
+
+	if !dice_thrown.has(sender):
+		return
+
+	if dice_thrown[sender] >= 6:
+		return
+
+	force = clamp(force, 0.0, MAX_FORCE)
+
+	dice_thrown[sender] += 1
+
+	spawn_dice(force)
 	
+
+@rpc("call_local","reliable")
+func spawn_dice_rpc(pos, force, dir, torque):
+
 	var dice = dice_scene.instantiate()
-	add_child(dice)
-	dice.global_position = Vector3(0,10,0)
-	var dir = Vector3(randf_range(-0.2, 0.2),-1,randf_range(-0.2, 0.2)).normalized()
+
+	dice.set_multiplayer_authority(1)
+
+	dice_container.add_child(dice)
+
+	dice.global_position = pos
+
+	await get_tree().physics_frame
+
 	dice.apply_impulse(dir * force)
-	dice.apply_torque_impulse(Vector3(randf_range(-10, 10),randf_range(-10, 10),randf_range(-10, 10)))
+	dice.apply_torque_impulse(torque)
+
+func spawn_dice(force):
+
+	var dice_position = Vector3(0, 10, 0)
+
+	await get_tree().physics_frame
+
+	var dir = Vector3(
+		randf_range(-0.2, 0.2),
+		-1.0,
+		randf_range(-0.2, 0.2)
+	).normalized()
+
+	var torque = Vector3(
+		randf_range(-10, 10),
+		randf_range(-10, 10),
+		randf_range(-10, 10)
+	)
+
+	rpc(
+		"spawn_dice_rpc",
+		dice_position,
+		force,
+		dir,
+		torque
+	)
