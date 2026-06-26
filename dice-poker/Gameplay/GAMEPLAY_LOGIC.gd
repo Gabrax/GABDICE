@@ -134,34 +134,40 @@ func _on_game_ready():
 	hud.show()
 
 func _on_pass_turn_pressed():
-
-	if !is_my_turn():
-		return
-
+	if !is_my_turn(): return
+	pass_turn_button.hide()
 	rpc_id(1, "next_turn")
 
-@rpc("any_peer","reliable")
+@rpc("any_peer","call_local","reliable")
 func next_turn():
-
 	if !multiplayer.is_server():
 		return
+
+	clear_dice.rpc()
+
+	var previous = player_order[current_turn]
+	dice_thrown[previous] = 0
 
 	current_turn += 1
 
 	if current_turn >= player_order.size():
 		current_turn = 0
 
-	var next_player = player_order[current_turn]
+	var next = player_order[current_turn]
+	dice_thrown[next] = 0
 
-	dice_thrown[next_player] = 0
-
+	rpc("sync_dice_thrown", dice_thrown)
 	rpc("sync_turn", current_turn)
+
+@rpc("any_peer","call_local","reliable")
+func clear_dice():
+	for dice in dice_container.get_children(): dice.queue_free()
 
 @rpc("call_local","reliable")
 func sync_turn(turn):
 	current_turn = turn
 	update_turn_ui()
-	pass_turn_button.hide()
+	update_pass_turn_button()
 
 func _on_host_init_server():
 	var peer = ENetMultiplayerPeer.new()
@@ -230,20 +236,14 @@ func _process(delta):
 	
 	# Pause toggle
 	if is_game and Input.is_action_just_pressed("ui_cancel"):
-
-		if settings.visible:
-			return
+		if settings.visible:return
 
 		is_pause = !is_pause
 
-		if is_pause:
-			show_pause()
-		else:
-			hide_pause()
-
-	var my_id = multiplayer.get_unique_id()
-	if dice_thrown.has(my_id) and dice_thrown[my_id] >= 6:
-		pass_turn_button.show()
+		if is_pause:show_pause()
+		else: hide_pause()
+		
+	if !multiplayer.has_multiplayer_peer(): return
 
 	# Dice charging
 	if is_game and not is_pause:
@@ -416,14 +416,21 @@ func begin_game():
 
 @rpc("call_local","reliable")
 func start_game_rpc(order):
+
 	player_order = order
 	game_started = true
+
+	dice_thrown.clear()
+
+	for id in player_order:
+		dice_thrown[id] = 0
+
 	countdown.text = ""
 	game_lobby.hide()
 	hud.show()
 
 	update_turn_ui()
-	pass_turn_button.hide()
+	update_pass_turn_button()
 
 func update_turn_ui():
 	var labels = [
@@ -568,12 +575,12 @@ func _on_pause_settings_pressed():
 func show_pause():
 	is_pause = true
 	pause_screen.show()
-	get_tree().paused = true
+	#get_tree().paused = true
 
 func hide_pause():
 	is_pause = false
 	pause_screen.hide()
-	get_tree().paused = false
+	#get_tree().paused = false
 
 # =========================
 # SETTINGS
@@ -607,6 +614,28 @@ func charge_dice(delta):
 		charge = 0.0
 		charge_bar.value = 0	
 
+@rpc("call_local", "reliable")
+func sync_dice_thrown(new_data):
+	dice_thrown = new_data.duplicate()
+	update_pass_turn_button()
+
+func update_pass_turn_button():
+	pass_turn_button.hide()
+
+	if !game_started:
+		return
+
+	if !multiplayer.has_multiplayer_peer():
+		return
+
+	if !is_my_turn():
+		return
+
+	var my_id = multiplayer.get_unique_id()
+
+	if dice_thrown.get(my_id, 0) >= 6:
+		pass_turn_button.show()
+
 func throw_dice(force):
 	var my_id = multiplayer.get_unique_id()
 
@@ -618,39 +647,38 @@ func throw_dice(force):
 
 	if multiplayer.is_server():
 		dice_thrown[my_id] += 1
+		rpc("sync_dice_thrown", dice_thrown)
 		spawn_dice(force)
 	else:
 		rpc_id(1, "request_throw", force)
 		
-@rpc("any_peer", "reliable")
+@rpc("any_peer","reliable")
 func request_throw(force):
-
 	if !multiplayer.is_server():
 		return
 
 	var sender = multiplayer.get_remote_sender_id()
 
 	if !dice_thrown.has(sender):
-		return
+		dice_thrown[sender] = 0
 
 	if dice_thrown[sender] >= 6:
 		return
 
-	force = clamp(force, 0.0, MAX_FORCE)
+	force = clamp(force,0.0,MAX_FORCE)
 
 	dice_thrown[sender] += 1
-
+	rpc("sync_dice_thrown", dice_thrown)
 	spawn_dice(force)
 	
 
 @rpc("call_local","reliable")
 func spawn_dice_rpc(pos, force, dir, torque):
-
 	var dice = dice_scene.instantiate()
 
 	dice.set_multiplayer_authority(1)
 
-	dice_container.add_child(dice)
+	dice_container.add_child(dice, true)
 
 	dice.global_position = pos
 

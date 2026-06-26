@@ -93,7 +93,3 @@ mesh = SubResource("BoxMesh_1je02")
 shape = SubResource("ConvexPolygonShape3D_sikkc")
 
 [node name="DiceContainer" type="Node3D" parent="GameMap" unique_id=1818083782]
-
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="." unique_id=1473323006]
-_spawnable_scenes = PackedStringArray("uid://dutqkiucb7046")
-spawn_path = NodePath("../GameMap/DiceContainer")

@@ -21,9 +21,8 @@ func _on_body_entered(_body):
 		cooldown = false
 	
 func _physics_process(delta):
-
-	if !multiplayer.is_server():
-		return
+	if !multiplayer.has_multiplayer_peer(): return
+	if !multiplayer.is_server():return
 
 	if linear_velocity.length() < 0.01 \
 	and angular_velocity.length() < 0.01:
