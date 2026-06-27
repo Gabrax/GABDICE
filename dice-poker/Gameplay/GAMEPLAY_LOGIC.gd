@@ -92,9 +92,20 @@ func _ready():
 	pass_turn_button.hide()
 	menu.show()
 
-	multiplayer.connected_to_server.connect(_on_connected_to_server)
-	multiplayer.connection_failed.connect(_on_connection_failed)
-	multiplayer.server_disconnected.connect(_on_server_disconnected)
+	#if !multiplayer.peer_connected.is_connected(_on_peer_connected):
+		#multiplayer.peer_connected.connect(_on_peer_connected)
+
+	if !multiplayer.peer_disconnected.is_connected(_on_peer_disconnected):
+		multiplayer.peer_disconnected.connect(_on_peer_disconnected)
+
+	if !multiplayer.connected_to_server.is_connected(_on_connected_to_server):
+		multiplayer.connected_to_server.connect(_on_connected_to_server)
+
+	if !multiplayer.connection_failed.is_connected(_on_connection_failed):
+		multiplayer.connection_failed.connect(_on_connection_failed)
+
+	if !multiplayer.server_disconnected.is_connected(_on_server_disconnected):
+		multiplayer.server_disconnected.connect(_on_server_disconnected)
 
 	# Main menu
 	join_button.pressed.connect(_on_join_pressed)
@@ -159,7 +170,7 @@ func next_turn():
 	rpc("sync_dice_thrown", dice_thrown)
 	rpc("sync_turn", current_turn)
 
-@rpc("any_peer","call_local","reliable")
+@rpc("authority","call_local","reliable")
 func clear_dice():
 	for dice in dice_container.get_children(): dice.queue_free()
 
@@ -173,12 +184,9 @@ func _on_host_init_server():
 	var peer = ENetMultiplayerPeer.new()
 	var error = peer.create_server(PORT)
 
-	if error != OK:
-		return
+	if error != OK: return
 
 	multiplayer.multiplayer_peer = peer
-	#multiplayer.peer_connected.connect(_on_peer_connected)
-	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 	
 	player_name = host_input_nick.text
 	if player_name.is_empty():
@@ -222,14 +230,19 @@ func _on_finished():
 # =========================
 
 func _process(delta):
-	if join_status.text.begins_with("Connecting"):
-		connect_timer += delta
+	if !multiplayer_active(): return
+	
+	if join_status.text.begins_with("Connecting"): connect_timer += delta
+
+	if countdown_active:
+		countdown_time -= delta
+
+		if countdown_time <= 0:
+			countdown_active = false
+			begin_game()
 
 	if connect_timer > 3.0:
-		if multiplayer.multiplayer_peer:
-			multiplayer.multiplayer_peer.close()
-			multiplayer.multiplayer_peer = null
-
+		cleanup_game()
 		join_status.text = "Connection timed out"
 
 		connect_timer = 0.0
@@ -242,8 +255,6 @@ func _process(delta):
 
 		if is_pause:show_pause()
 		else: hide_pause()
-		
-	if !multiplayer.has_multiplayer_peer(): return
 
 	# Dice charging
 	if is_game and not is_pause:
@@ -289,6 +300,13 @@ func sync_players(new_players):
 	
 func _on_peer_disconnected(id):
 	players.erase(id)
+	player_order.erase(id)
+	dice_thrown.erase(id)
+	
+	if player_order.size() > 0:
+		current_turn %= player_order.size()
+		rpc("sync_turn", current_turn)
+
 	update_lobby()
 	rpc("sync_players", players)
 	
@@ -382,8 +400,16 @@ func start_countdown():
 
 	while countdown_time > 0:
 		await get_tree().create_timer(1.0).timeout
-		countdown_time -= 1
-		rpc("show_countdown", countdown_time)
+
+		if !countdown_active: 
+			return
+
+			countdown_time -= 1
+
+			rpc("show_countdown", countdown_time)
+
+	if !countdown_active:
+		return
 
 	begin_game()
 
@@ -455,7 +481,10 @@ func update_turn_ui():
 			labels[i].text = txt
 
 func is_my_turn():
-	if !game_started:
+	if player_order.is_empty():
+		return false
+
+	if current_turn >= player_order.size():
 		return false
 
 	return player_order[current_turn] == multiplayer.get_unique_id()
@@ -490,6 +519,68 @@ func error_string(err: int) -> String:
 		_:
 			return "Unknown Error (%d)" % err
 
+func cleanup_game():
+	# ===== Multiplayer =====
+	if multiplayer.multiplayer_peer:
+		multiplayer.multiplayer_peer.close()
+
+	multiplayer.multiplayer_peer = null
+
+	# ===== Stan gry =====
+	game_started = false
+	is_pause = false
+	is_game = false
+
+	current_turn = 0
+	charge = 0.0
+
+	# ===== Lobby =====
+	players.clear()
+	player_order.clear()
+	dice_thrown.clear()
+	ready_players.clear()
+
+	# ===== Countdown =====
+	countdown_active = false
+	countdown_time = 5
+
+	# ===== UI =====
+	menu.show()
+	hud.hide()
+	game_lobby.hide()
+	host_screen.hide()
+	join_screen.hide()
+	pause_screen.hide()
+	settings.hide()
+	pass_turn_button.hide()
+
+	connect_timer = 0.0
+	
+	charge_bar.value = 0
+
+	join_status.text = ""
+	countdown.text = ""
+
+	host_input_nick.text = ""
+	join_input.text = ""
+	join_input_nick.text = ""
+
+	turn_label1.text = ""
+	turn_label2.text = ""
+	turn_label3.text = ""
+	turn_label4.text = ""
+	turn_label5.text = ""
+
+	# ===== Lobby UI =====
+	update_lobby()
+
+	# ===== Kostki =====
+	for dice in dice_container.get_children():
+		dice.queue_free()
+
+	# ===== Kamera =====
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+
 func _on_connect_pressed():
 	var ip = join_input.text.strip_edges()
 
@@ -512,25 +603,18 @@ func _on_connect_pressed():
 
 	multiplayer.multiplayer_peer = peer
 	
-func _on_connection_failed():
-	join_status.text = "Connection failed."
+func _on_connection_failed(): cleanup_game()
 	
-func _on_server_disconnected():
-	join_status.text = "Disconnected from server."
+func _on_server_disconnected(): cleanup_game()
 
-	is_game = false
+func multiplayer_active() -> bool:
+	if multiplayer.multiplayer_peer == null: return false
 
-	if multiplayer.multiplayer_peer:
-		multiplayer.multiplayer_peer.close()
+	return multiplayer.multiplayer_peer.get_connection_status() != MultiplayerPeer.CONNECTION_DISCONNECTED
 
-	menu.show()
-	hud.hide()
+func _on_connect_success(): is_game = true
 
-func _on_connect_success():
-	is_game = true
-
-func _on_exit_pressed():
-	get_tree().quit()
+func _on_exit_pressed(): get_tree().quit()
 
 func _on_settings_pressed():
 	settings_from_pause = false
@@ -544,29 +628,9 @@ func _join_on_return_pressed():
 # PAUSE
 # =========================
 
-func _on_resume_pressed():
-	hide_pause()
+func _on_resume_pressed(): hide_pause()
 
-func _on_disconnect_pressed():
-	if multiplayer.multiplayer_peer:
-		multiplayer.multiplayer_peer.close()
-		multiplayer.multiplayer_peer = null
-
-	if multiplayer.is_server():
-		rpc("sync_players", players)
-
-	players.clear()
-	player_order.clear()
-	dice_thrown.clear()
-	game_started = false
-
-	hide_pause()
-
-	is_game = false
-
-	hud.hide()
-	game_lobby.hide()
-	menu.show()
+func _on_disconnect_pressed(): cleanup_game()
 
 func _on_pause_settings_pressed():
 	settings_from_pause = true
@@ -594,10 +658,8 @@ func show_settings():
 func _settings_on_return_pressed():
 	settings.hide()
 
-	if settings_from_pause:
-		pause_screen.show()
-	else:
-		menu.show()
+	if settings_from_pause: pause_screen.show()
+	else: menu.show()
 
 # =========================
 # DICE
@@ -692,6 +754,8 @@ func spawn_dice(force):
 	var dice_position = Vector3(0, 10, 0)
 
 	await get_tree().physics_frame
+	
+	if !multiplayer_active(): return
 
 	var dir = Vector3(
 		randf_range(-0.2, 0.2),
