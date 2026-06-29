@@ -71,7 +71,6 @@ var ready_players := {}
 var is_game  := false 
 var is_pause := false
 var settings_from_pause := false
-
 var game_started := false
 
 var player_order := []
@@ -151,8 +150,7 @@ func _on_pass_turn_pressed():
 
 @rpc("any_peer","call_local","reliable")
 func next_turn():
-	if !multiplayer.is_server():
-		return
+	if !multiplayer.is_server(): return
 
 	clear_dice.rpc()
 
@@ -161,8 +159,7 @@ func next_turn():
 
 	current_turn += 1
 
-	if current_turn >= player_order.size():
-		current_turn = 0
+	if current_turn >= player_order.size(): current_turn = 0
 
 	var next = player_order[current_turn]
 	dice_thrown[next] = 0
@@ -220,8 +217,7 @@ func play_current():
 func _on_finished():
 	current_track += 1
 
-	if current_track >= tracks.size():
-		current_track = 0
+	if current_track >= tracks.size(): current_track = 0
 
 	play_current()
 
@@ -229,17 +225,12 @@ func _on_finished():
 # GAME
 # =========================
 
+var last_countdown_value := -1
+
 func _process(delta):
 	if !multiplayer_active(): return
 	
 	if join_status.text.begins_with("Connecting"): connect_timer += delta
-
-	if countdown_active:
-		countdown_time -= delta
-
-		if countdown_time <= 0:
-			countdown_active = false
-			begin_game()
 
 	if connect_timer > 3.0:
 		cleanup_game()
@@ -257,8 +248,7 @@ func _process(delta):
 		else: hide_pause()
 
 	# Dice charging
-	if is_game and not is_pause:
-		charge_dice(delta)
+	if is_game and not is_pause: charge_dice(delta)
 
 # =========================
 # MAIN MENU
@@ -277,20 +267,14 @@ func _on_host_pressed():
 func _on_connected_to_server():
 	connect_timer = 0.0
 	join_status.text = "Connected!"
-
 	show_lobby()
-
 	rpc_id(1,"register_player",multiplayer.get_unique_id(),player_name)
-
 	is_game = true
 
 @rpc("any_peer","reliable")
 func register_player(id, name):
-
 	players[id] = {"name": name,"ready": false}
-
 	update_lobby()
-
 	rpc("sync_players", players)
 	
 @rpc("call_local", "reliable")
@@ -329,8 +313,7 @@ func update_lobby():
 		game_lobby_user5
 	]
 
-	for l in labels:
-		l.text = ""
+	for l in labels: l.text = ""
 
 	var index = 0
 
@@ -338,41 +321,27 @@ func update_lobby():
 		var p = players[id]
 		var txt = p["name"]
 		
-		if id == 1:
-			txt += " (HOST)"
-		if p["ready"]:
-			txt += " [READY]"
-		else:
-			txt += " [NOT READY]"
+		if id == 1: txt += " (HOST)"
+		if p["ready"]: txt += " [READY]"
+		else: txt += " [NOT READY]"
 
-		if index < labels.size():
-			labels[index].text = txt
+		if index < labels.size(): labels[index].text = txt
 			
 		index += 1
 		
 func _on_ready_pressed():
 	var my_id = multiplayer.get_unique_id()
-
-	if multiplayer.is_server():
-		toggle_ready(my_id)
-	else:
-		rpc_id(1, "set_ready", my_id)
+	if multiplayer.is_server(): toggle_ready(my_id)
+	else: rpc_id(1, "set_ready", my_id)
 
 func toggle_ready(id):
-	if players.has(id):
-		players[id]["ready"] = !players[id]["ready"]
-
+	if players.has(id): players[id]["ready"] = !players[id]["ready"]
 	update_lobby()
-
-	if multiplayer.is_server():
-		rpc("sync_players", players)
-		
+	if multiplayer.is_server(): rpc("sync_players", players)
 	check_all_ready()
 	
 func check_all_ready():
-
-	if !multiplayer.is_server() or countdown_active or game_started:
-		return
+	if !multiplayer.is_server() or countdown_active or game_started: return
 
 	if players.size() < 2:
 		countdown.text = "At least 2 Players have to be ready"
@@ -384,41 +353,37 @@ func check_all_ready():
 			rpc("show_waiting")
 			return
 
-	if !countdown_active:
-		start_countdown()
+	print("START COUNTDOWN")
+	start_countdown()
 
 @rpc("call_local","reliable")
-func show_waiting():
-	countdown.text = "Waiting for players readyness..."
+func show_waiting(): countdown.text = "Waiting for players readyness..."
 
 func start_countdown():
+	if countdown_active:return
+
 	countdown_active = true
 
-	countdown_time = 5
+	var countdown = 5
 
-	rpc("show_countdown", countdown_time)
-
-	while countdown_time > 0:
+	while countdown > 0:
+		rpc("show_countdown", countdown)
 		await get_tree().create_timer(1.0).timeout
+		countdown -= 1
 
-		if !countdown_active: 
-			return
+	rpc("show_countdown", 0)
 
-			countdown_time -= 1
+	await get_tree().create_timer(1.0).timeout
 
-			rpc("show_countdown", countdown_time)
-
-	if !countdown_active:
-		return
-
+	countdown_active = false
 	begin_game()
 
 @rpc("call_local","reliable")
 func show_countdown(value):
-	if value > 0:
-		countdown.text = "Game starts in %d" % value
-	else:
-		countdown.text = "START!"
+	print("show_countdown:", value)
+	
+	if value > 0: countdown.text = "Game starts in %d" % value
+	else: countdown.text = "START!"
 
 func begin_game():
 	countdown_active = false
@@ -426,8 +391,7 @@ func begin_game():
 
 	player_order.clear()
 
-	for id in players.keys():
-		player_order.append(id)
+	for id in players.keys(): player_order.append(id)
 
 	player_order.sort()
 
@@ -435,21 +399,18 @@ func begin_game():
 
 	dice_thrown.clear()
 
-	for id in players.keys():
-		dice_thrown[id] = 0
+	for id in players.keys(): dice_thrown[id] = 0
 
 	rpc("start_game_rpc", player_order)
 
 @rpc("call_local","reliable")
 func start_game_rpc(order):
-
 	player_order = order
 	game_started = true
 
 	dice_thrown.clear()
 
-	for id in player_order:
-		dice_thrown[id] = 0
+	for id in player_order: dice_thrown[id] = 0
 
 	countdown.text = ""
 	game_lobby.hide()
@@ -467,31 +428,25 @@ func update_turn_ui():
 		turn_label5
 	]
 
-	for l in labels:
-		l.text = ""
+	for l in labels: l.text = ""
 
 	for i in range(player_order.size()):
 		var id = player_order[i]
 		var txt = players[id]["name"]
 
-		if i == current_turn:
-			txt += " <-"
+		if i == current_turn: txt += " <-"
 
-		if i < labels.size():
-			labels[i].text = txt
+		if i < labels.size(): labels[i].text = txt
 
 func is_my_turn():
-	if player_order.is_empty():
-		return false
+	if player_order.is_empty(): return false
 
-	if current_turn >= player_order.size():
-		return false
+	if current_turn >= player_order.size(): return false
 
 	return player_order[current_turn] == multiplayer.get_unique_id()
 
 @rpc("any_peer", "reliable")
-func set_ready(id):
-	toggle_ready(id)
+func set_ready(id): toggle_ready(id)
 
 func _on_join_pressed():
 	menu.hide()
@@ -521,8 +476,7 @@ func error_string(err: int) -> String:
 
 func cleanup_game():
 	# ===== Multiplayer =====
-	if multiplayer.multiplayer_peer:
-		multiplayer.multiplayer_peer.close()
+	if multiplayer.multiplayer_peer: multiplayer.multiplayer_peer.close()
 
 	multiplayer.multiplayer_peer = null
 
